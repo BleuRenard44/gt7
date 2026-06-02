@@ -1,4 +1,4 @@
-name: Deploy GT7 Hub
+name: Deploy GT7 Website 
 on:
   push:
     branches: [ main ]
