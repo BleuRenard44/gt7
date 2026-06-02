@@ -1,31 +1,20 @@
-name: Deploy GT7 League Hub
-
+name: Deploy GT7 Hub
 on:
   push:
-    branches:
-      - main  # Se déclenche à chaque push sur main
-
+    branches: [ main ]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '20'  # adapte si nécessaire
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build project
-        run: npm run build
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+          node-version: '20'
+      - run: |
+          cd frontend
+          npm install
+          npm run build
+      - uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GH_PAT }}
-          publish_dir: ./dist  # dossier build Vite
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/dist
