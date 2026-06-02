@@ -1,1 +1,1 @@
-// Node.js + Express + SQLite backend
+// Backend Node.js + SQLite

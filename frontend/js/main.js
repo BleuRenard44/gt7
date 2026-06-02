@@ -1,1 +1,1 @@
-// JS main dashboard / scores
+// Dashboard et scores interactif

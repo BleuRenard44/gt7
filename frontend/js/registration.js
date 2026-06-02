@@ -1,1 +1,1 @@
-// JS inscription pilotes / écuries
+// Formulaire inscription pilotes/ecuries
