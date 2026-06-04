@@ -1,1 +1,0 @@
-// Backend Node.js + SQLite
