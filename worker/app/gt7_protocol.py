@@ -22,10 +22,6 @@ def i32(data: bytes, offset: int) -> int:
     return struct.unpack_from("<i", data, offset)[0]
 
 
-def u16(data: bytes, offset: int) -> int:
-    return struct.unpack_from("<H", data, offset)[0]
-
-
 def i16(data: bytes, offset: int) -> int:
     return struct.unpack_from("<h", data, offset)[0]
 
@@ -36,32 +32,32 @@ def u8(data: bytes, offset: int) -> int:
 
 def decrypt_packet(packet: bytes) -> bytes:
     if len(packet) < 0x128:
-        raise PacketDecodeError(f"Packet too small: {len(packet)} bytes")
+        raise PacketDecodeError(f"packet trop petit: {len(packet)} bytes")
 
     iv1 = int.from_bytes(packet[0x40:0x44], byteorder="little")
     iv2 = iv1 ^ 0xDEADBEAF
-
     nonce = iv2.to_bytes(4, "little") + iv1.to_bytes(4, "little")
+
     cipher = Salsa20.new(key=KEY[:32], nonce=nonce)
     decoded = cipher.decrypt(packet)
 
     magic = int.from_bytes(decoded[0:4], byteorder="little")
     if magic != MAGIC:
-        raise PacketDecodeError(f"Invalid magic: {hex(magic)}")
+        raise PacketDecodeError(f"magic invalide: {hex(magic)}")
 
     return decoded
 
 
 def normalize_world_position(world_x: float, world_z: float) -> tuple[float, float]:
-    # Sans base de données officielle des tracés, on projette les coordonnées monde
-    # dans un viewport dynamique stable. Le dashboard affiche aussi world_x/world_z.
     scale = 900.0
     x = 0.5 + max(-0.48, min(0.48, world_x / scale))
     y = 0.5 + max(-0.48, min(0.48, world_z / scale))
+
     if not math.isfinite(x):
         x = 0.5
     if not math.isfinite(y):
         y = 0.5
+
     return x, y
 
 
@@ -74,8 +70,9 @@ def parse_packet(console_ip: str, packet: bytes) -> dict:
     x, y = normalize_world_position(world_x, world_z)
 
     raw_gear = u8(data, 0x90)
-    current_gear = raw_gear & 0b00001111
+    current_gear: int | str = raw_gear & 0b00001111
     suggested_gear = raw_gear >> 4
+
     if current_gear < 1:
         current_gear = "R"
     if suggested_gear > 14:
