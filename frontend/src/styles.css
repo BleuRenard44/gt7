@@ -1,1 +1,112 @@
-:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#020617;color:#e2e8f0}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{border:0;border-radius:10px;padding:9px 12px;color:#e2e8f0;background:#2563eb;cursor:pointer;font-weight:800}button:hover{filter:brightness(1.1)}button.danger{background:#dc2626}input,select{border:1px solid #334155;border-radius:10px;padding:9px 11px;color:#e2e8f0;background:#0f172a}.app{min-height:100vh;padding:28px;background:radial-gradient(circle at top left,rgba(37,99,235,.22),transparent 35%),radial-gradient(circle at top right,rgba(225,29,72,.16),transparent 28%),#020617}.topbar{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px}.eyebrow{color:#38bdf8;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}h1,h2,h3,h4,p{margin-top:0}h1{margin-bottom:0;font-size:clamp(28px,4vw,48px)}.statusPill{display:flex;align-items:center;gap:8px;border:1px solid #334155;border-radius:999px;padding:10px 14px;background:rgba(15,23,42,.74)}.ok{color:#22c55e}.ko{color:#ef4444}.error{margin-bottom:16px;border:1px solid #991b1b;border-radius:14px;padding:12px;background:rgba(127,29,29,.35)}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.metric{display:flex;align-items:center;gap:12px;border:1px solid #1e293b;border-radius:18px;padding:16px;background:rgba(15,23,42,.8)}.metricIcon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#1d4ed8}.metricLabel{color:#94a3b8;font-size:13px}.metricValue{font-size:18px;font-weight:900}.grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(420px,.8fr);gap:18px}.panel{border:1px solid #1e293b;border-radius:22px;padding:18px;background:rgba(15,23,42,.82);box-shadow:0 24px 60px rgba(0,0,0,.28)}.full{grid-column:1/-1}.trackWrap{width:100%;overflow:hidden;border-radius:20px}.trackSvg{display:block;width:100%;min-height:360px}.trackBg{fill:#0f172a}.trackOuter{fill:none;stroke:#475569;stroke-width:76;stroke-linecap:round;stroke-linejoin:round}.trackInner{fill:none;stroke:#111827;stroke-width:44;stroke-linecap:round;stroke-linejoin:round}.startLine{stroke:#f8fafc;stroke-width:8}.carDot{stroke:#f8fafc;stroke-width:3}.carLabel{fill:#e2e8f0;font-weight:900;font-size:20px;paint-order:stroke;stroke:#020617;stroke-width:5px}.hint{color:#94a3b8;font-size:13px;margin:10px 0 0}.tableWrap{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #1e293b;padding:12px 10px;text-align:left}th{color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:.08em}.teamSwatch{display:inline-block;width:12px;height:12px;border-radius:999px;margin-right:8px;vertical-align:middle}.teamSwatch.big{width:18px;height:18px}.liveDot{display:inline-block;width:10px;height:10px;border-radius:999px;background:#64748b}.liveDot.on{background:#22c55e;box-shadow:0 0 14px #22c55e}.cards{display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:14px}.carCard,.teamCard{border:1px solid #1e293b;border-radius:18px;padding:16px;background:rgba(2,6,23,.48)}.carHeader,.teamHeader{display:flex;align-items:center;gap:12px;margin-bottom:14px}.carHeader p,.muted{margin:0 0 10px;color:#94a3b8}.carStats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat{border-radius:12px;padding:10px;background:#0f172a}.stat span{display:block;color:#94a3b8;font-size:12px}.stat strong{display:block;margin-top:4px;font-size:17px}.teamGrid{display:grid;grid-template-columns:repeat(2,minmax(320px,1fr));gap:14px}.teamHeader{justify-content:space-between}.teamNameInput{width:100%;font-size:18px;font-weight:900}.colorInput{width:54px;min-width:54px;height:42px;padding:4px}.inlineForm{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}.pilotList{display:grid;gap:8px}.pilotRow{display:flex;justify-content:space-between;gap:8px;align-items:center;border-radius:12px;padding:10px;background:#0f172a}.pilotRow div{display:flex;gap:6px}.relayList li{margin-bottom:6px}.relayList .active{color:#22c55e;font-weight:900}.relayList .done{color:#94a3b8;text-decoration:line-through}@media(max-width:1100px){.metrics,.grid,.cards,.teamGrid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+:root{
+  color-scheme:dark;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#020617;color:#e2e8f0;
+  --panel:rgba(15,23,42,.82);
+  --panel2:rgba(2,6,23,.56);
+  --border:#1e293b;
+  --muted:#94a3b8;
+  --blue:#2563eb;
+}
+*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}
+button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:10px 14px;color:#e2e8f0;background:#2563eb;cursor:pointer;font-weight:850}
+button:hover{filter:brightness(1.1)}button.danger{background:#dc2626}button.secondary{background:#334155}button.activeBtn{background:#16a34a}
+input,select{border:1px solid #334155;border-radius:12px;padding:10px 12px;color:#e2e8f0;background:#0f172a;min-width:0}
+a{color:inherit}.shell{min-height:100vh;display:grid;grid-template-columns:280px 1fr;background:radial-gradient(circle at top left,rgba(37,99,235,.22),transparent 35%),radial-gradient(circle at top right,rgba(225,29,72,.16),transparent 28%),#020617}
+.sidebar{position:sticky;top:0;height:100vh;border-right:1px solid var(--border);background:rgba(2,6,23,.78);backdrop-filter:blur(18px);padding:22px;display:flex;flex-direction:column;gap:24px}
+.brand{display:flex;align-items:center;gap:12px}.brandLogo{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#e11d48);font-weight:950}.brand strong{display:block;font-size:18px}.brand span{display:block;color:var(--muted);font-size:13px}
+.nav{display:grid;gap:8px}.navItem{justify-content:flex-start;background:transparent;color:#cbd5e1}.navItem.active{background:#1d4ed8;color:#fff}.navItem span{white-space:nowrap}
+.main{padding:28px;min-width:0}.topbar{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:22px}.eyebrow{color:#38bdf8;font-size:13px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}h1,h2,h3,h4,p{margin-top:0}h1{margin-bottom:0;font-size:clamp(26px,4vw,46px)}
+.topActions{display:flex;gap:10px;align-items:center}.statusPill,.flagMini{display:flex;align-items:center;gap:8px;border:1px solid #334155;border-radius:999px;padding:10px 14px;background:rgba(15,23,42,.74);font-weight:900;text-transform:uppercase}.ok{color:#22c55e}.ko{color:#ef4444}.error{margin-bottom:16px;border:1px solid #991b1b;border-radius:14px;padding:12px;background:rgba(127,29,29,.35)}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.metric{display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:20px;padding:16px;background:var(--panel)}.metricIcon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#1d4ed8}.metricLabel{color:var(--muted);font-size:13px}.metricValue{font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dashboardGrid,.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(420px,.85fr);gap:18px}.span2{grid-column:1/-1}.panel{border:1px solid var(--border);border-radius:24px;padding:18px;background:var(--panel);box-shadow:0 24px 60px rgba(0,0,0,.28)}.panelTitle{display:flex;justify-content:space-between;align-items:center;gap:12px}.panelTitle span{color:var(--muted);font-weight:800}
+.trackWrap{width:100%;overflow:hidden;border-radius:20px}.trackSvg{display:block;width:100%;min-height:430px}.trackBg{fill:#0f172a}.trackOuter{fill:none;stroke:#334155;stroke-width:72;stroke-linecap:round;stroke-linejoin:round}.trackInner{fill:none;stroke:#020617;stroke-width:42;stroke-linecap:round;stroke-linejoin:round}.startMarker{fill:#22c55e;stroke:#fff;stroke-width:3}.carHalo{stroke:#fff;stroke-width:3}.carLabel{fill:#e2e8f0;font-weight:950;font-size:20px;paint-order:stroke;stroke:#020617;stroke-width:5px}.selectedCarGroup .carHalo{stroke:#facc15;stroke-width:6}.hint{color:var(--muted);font-size:13px;margin:10px 0 0}
+.tableWrap{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--border);padding:12px 10px;text-align:left}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}tr{cursor:pointer}.selectedRow{background:rgba(250,204,21,.12)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;color:#cbd5e1}
+.teamSwatch{display:inline-block;width:12px;height:12px;border-radius:999px;margin-right:8px;vertical-align:middle}.teamSwatch.big{width:18px;height:18px}.teamSwatch.mega{width:34px;height:34px;min-width:34px}.liveDot{display:inline-block;width:10px;height:10px;border-radius:999px;background:#64748b}.liveDot.on{background:#22c55e;box-shadow:0 0 14px #22c55e}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:14px}.carCard,.teamCard,.miniPanel,.panelSub{border:1px solid var(--border);border-radius:20px;padding:16px;background:var(--panel2)}.carHeader,.teamHeader{display:flex;align-items:center;gap:12px;margin-bottom:14px}.carHeader p,.muted{margin:0 0 10px;color:var(--muted)}.carStats,.statsGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.stat{border-radius:12px;padding:10px;background:#0f172a}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;margin-top:4px;font-size:17px}.stat.rich{position:relative}.statIcon{float:right;color:#38bdf8}
+.recorder,.sessionControl,.raceTools{display:grid;gap:16px}.recorder p,.sessionControl p{color:var(--muted);margin-bottom:0}.recorderGrid,.sessionGrid{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}.recorderGrid label,.sessionGrid label,.toolForm label{display:grid;gap:8px;color:var(--muted);font-weight:800}.recordStatus{display:flex;align-items:center;gap:10px;border:1px solid #334155;border-radius:16px;padding:11px 14px;background:#0f172a;font-weight:900;min-height:44px}.recordDot{display:inline-block;width:12px;height:12px;border-radius:999px;background:#64748b}.recordDot.on{background:#ef4444;box-shadow:0 0 16px #ef4444;animation:pulse 1s infinite}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}.buttonRow{display:flex;gap:10px;flex-wrap:wrap}.trackList{display:grid;gap:10px}.trackItem{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--border);border-radius:16px;padding:12px;background:#020617}.trackItem span{display:block;color:var(--muted);font-size:13px;margin-top:4px}.trackActions{display:flex;gap:8px}
+.flagBanner{border-radius:18px;padding:18px;font-size:28px;font-weight:950;text-transform:uppercase;text-align:center}.flagBanner.green,.flagBtn.green,.flagMini.green,.phoneFlag.green,.publicHeader.green{background:#16a34a}.flagBanner.yellow,.flagBtn.yellow,.flagMini.yellow,.phoneFlag.yellow,.publicHeader.yellow{background:#ca8a04;color:#111827}.flagBanner.red,.flagBtn.red,.flagMini.red,.phoneFlag.red,.publicHeader.red{background:#dc2626}.flagBanner.safety_car,.flagBtn.safety_car,.flagMini.safety_car,.phoneFlag.safety_car,.publicHeader.safety_car{background:#f97316}.flagBanner.vsc,.flagBtn.vsc,.flagMini.vsc,.phoneFlag.vsc,.publicHeader.vsc{background:#7c3aed}.flagBanner.checkered,.flagBtn.checkered,.flagMini.checkered,.phoneFlag.checkered,.publicHeader.checkered{background:repeating-linear-gradient(45deg,#fff 0,#fff 12px,#111827 12px,#111827 24px);color:#ef4444}
+.toolForm{display:grid;grid-template-columns:1fr 1fr 120px auto auto;gap:10px;align-items:end}.columns3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.miniItem{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid var(--border);padding:8px 0}.miniItem:last-child{border-bottom:0}
+.eventLog{display:grid;gap:8px;margin-top:14px;max-height:420px;overflow:auto}.eventItem{display:grid;grid-template-columns:90px 90px 180px 1fr;gap:10px;align-items:center;border:1px solid var(--border);border-radius:14px;padding:10px;background:#020617}.eventItem p{margin:0;color:#cbd5e1}.eventType{font-weight:900;color:#38bdf8}.downloadBtn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border-radius:12px;padding:10px 14px;background:#334155;color:#e2e8f0;font-weight:900}
+.teamGrid{display:grid;grid-template-columns:repeat(2,minmax(320px,1fr));gap:14px}.teamHeader{justify-content:space-between}.teamNameInput{width:100%;font-size:18px;font-weight:900}.colorInput{width:54px;min-width:54px;height:42px;padding:4px}.inlineForm{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}.pilotList{display:grid;gap:8px}.pilotRow{display:flex;justify-content:space-between;gap:8px;align-items:center;border-radius:12px;padding:10px;background:#0f172a}.pilotRow div{display:flex;gap:6px}.relayList li{margin-bottom:6px}.relayList .active{color:#22c55e;font-weight:900}.relayList .done{color:var(--muted);text-decoration:line-through}
+.sourcePicker,.miniCarStrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.sourceCard,.miniCar{justify-content:flex-start;text-align:left;background:#0f172a;border:1px solid var(--border)}.sourceCard.active,.miniCar.active{border-color:#facc15;box-shadow:0 0 0 2px rgba(250,204,21,.22)}.sourceCard small,.miniCar small{display:block;color:var(--muted);margin-top:4px}.miniCar{display:flex;justify-content:space-between}.completeCar{display:grid;gap:16px}.carHero{display:flex;justify-content:space-between;gap:18px;align-items:center}.carHeroIdentity{display:flex;align-items:center;gap:14px}.carHero h2{font-size:32px;margin-bottom:6px}.carHero p{color:var(--muted);margin-bottom:4px}.speedHero{text-align:right}.speedHero strong{font-size:72px;line-height:.9}.speedHero span{display:block;color:var(--muted);font-weight:900}.carDashGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.bigTile{border:1px solid var(--border);border-radius:20px;padding:16px;background:#020617}.bigIcon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#1d4ed8;margin-bottom:12px}.bigTile span{color:var(--muted);font-size:13px}.bigTile strong{display:block;font-size:28px;margin-top:4px}.bigTile small{display:block;color:var(--muted);margin-top:4px}.gaugeGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.gaugeBar{display:grid;gap:8px}.gaugeTop{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}.gaugeTop strong{color:#e2e8f0}.gaugeTrack{height:12px;background:#0f172a;border-radius:99px;overflow:hidden}.gaugeFill{height:100%;background:linear-gradient(90deg,#22c55e,#38bdf8);border-radius:99px}.gaugeFill.reverse{background:linear-gradient(90deg,#f97316,#ef4444)}
+.mobilePage{display:grid;gap:18px}.mobileSelector p{color:var(--muted)}.shareUrl{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:14px;padding:10px;background:#020617;color:#cbd5e1;word-break:break-all}.phoneFrame{max-width:520px;margin:0 auto;width:100%;border:1px solid var(--border);border-radius:34px;padding:18px;background:linear-gradient(180deg,#0f172a,#020617);box-shadow:0 30px 80px rgba(0,0,0,.38)}.phoneFlag{text-align:center;border-radius:18px;padding:10px;font-weight:950;text-transform:uppercase;margin-bottom:14px}.phoneHeader{display:flex;gap:12px;align-items:center}.phoneHeader p{color:var(--muted);margin:0}.phoneSpeed{text-align:center;padding:20px 0}.phoneSpeed strong{font-size:88px;line-height:.9}.phoneSpeed span{display:block;color:var(--muted);font-weight:900}.phoneVitals{display:grid;gap:10px}.phoneGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.phoneTile{border:1px solid var(--border);border-radius:18px;padding:14px;background:#0f172a}.phoneTile span{display:block;color:var(--muted);font-size:12px}.phoneTile strong{display:block;font-size:26px}.phoneSection{margin-top:18px}.phoneAlerts{display:grid;gap:8px;margin-top:14px}.phoneAlerts div{border-radius:14px;padding:12px;background:#7f1d1d;color:#fecaca}.publicScreen{display:grid;gap:18px}.publicHeader{display:flex;justify-content:space-between;align-items:center;border-radius:24px;padding:24px;text-transform:uppercase}.publicHeader h2{font-size:42px;margin:0}.publicHeader strong{font-size:48px}.publicGrid{display:grid;grid-template-columns:1.5fr .8fr;gap:18px}
+.empty{color:var(--muted);padding:28px;text-align:center}
+@media(max-width:1200px){.shell{grid-template-columns:1fr}.sidebar{position:static;height:auto;display:block}.brand{margin-bottom:14px}.nav{display:flex;overflow:auto;padding-bottom:4px}.navItem{min-width:max-content}.metrics,.dashboardGrid,.layout,.cards,.teamGrid,.recorderGrid,.sessionGrid,.toolForm,.columns3,.eventItem,.carDashGrid,.gaugeGrid,.statsGrid,.publicGrid{grid-template-columns:1fr}.span2{grid-column:auto}.topbar{align-items:flex-start;flex-direction:column}.carHero{align-items:flex-start;flex-direction:column}.speedHero{text-align:left}.speedHero strong{font-size:58px}.main{padding:18px}}
+@media(max-width:640px){.main{padding:12px}.sidebar{padding:12px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{padding:10px;border-radius:16px}.metricIcon{width:34px;height:34px}.metricValue{font-size:14px}.panel{padding:12px;border-radius:18px}.topbar h1{font-size:26px}.cards{grid-template-columns:1fr}.carStats,.statsGrid{grid-template-columns:repeat(2,1fr)}.phoneFrame{border-radius:24px;padding:14px}.phoneSpeed strong{font-size:72px}.navItem span{display:none}.navItem{padding:10px}.brand span{display:none}}
+
+.tyreGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.tyreCard{border:1px solid var(--border);border-radius:18px;padding:14px;background:#020617}.tyreCard header{display:flex;gap:10px;align-items:center;margin-bottom:12px}.tyreCard p{color:var(--muted);margin:4px 0 0}.tyreBars{display:grid;gap:8px}.tyrePrediction{margin-top:12px;border-radius:12px;padding:10px;font-weight:900;background:#334155}.tyrePrediction.ok,.tyreBadge.ok{background:#14532d;color:#bbf7d0}.tyrePrediction.warning,.tyreBadge.warning{background:#713f12;color:#fde68a}.tyrePrediction.critical,.tyreBadge.critical{background:#7f1d1d;color:#fecaca}.tyreBadge{display:inline-block;border-radius:999px;padding:4px 9px;background:#334155;font-weight:900}.sectorBoard{display:grid;gap:8px;max-height:440px;overflow:auto}.sectorItem{display:grid;grid-template-columns:auto 1fr 70px 42px 80px;gap:8px;align-items:center;border:1px solid var(--border);border-radius:14px;padding:10px;background:#020617}.sectorItem span{color:var(--muted)}.sectorItem b{color:#38bdf8}.heatmapLayer{pointer-events:none}.heatPoint.brake{fill:#ef4444}.heatPoint.throttle{fill:#22c55e}.heatPoint.coast{fill:#38bdf8}@media(max-width:640px){.sectorItem{grid-template-columns:auto 1fr 54px}.sectorItem span:nth-of-type(2){display:none}}
+
+
+/* --- Track rework: thinner circuit + heatmap controls --- */
+.trackToolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.trackToolbarGroup{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.trackToolbar select{
+  min-width:170px;
+}
+.trackSvg.thinTrack .trackOuter{
+  stroke-width:10 !important;
+  stroke:#94a3b8;
+}
+.trackSvg.thinTrack .trackInner{
+  display:none !important;
+}
+.trackSvg.thinTrack .startLine{
+  stroke-width:2 !important;
+}
+.trackSvg.thinTrack .carLabel{
+  font-size:14px;
+  stroke-width:3px;
+}
+.trackSvg.thinTrack .carHalo{
+  stroke-width:1.5px;
+}
+.trackOuter{
+  stroke-width:22px;
+}
+.trackInner{
+  stroke-width:12px;
+}
+.startLine{
+  stroke:#fff;
+  stroke-width:2;
+}
+.heatmapLayer{
+  pointer-events:none;
+  mix-blend-mode:screen;
+}
+.heatPoint.brake{
+  fill:#ef4444;
+}
+.heatPoint.throttle{
+  fill:#22c55e;
+}
+.heatPoint.coast{
+  fill:#38bdf8;
+}
+@media(max-width:640px){
+  .trackToolbar{
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .trackToolbarGroup{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  .trackToolbar button,
+  .trackToolbar select{
+    width:100%;
+  }
+}

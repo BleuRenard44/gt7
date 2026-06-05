@@ -1,45 +1,34 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api, WS_URL } from '../api'
 
 export function useRaceState() {
-  const [state, setState] = useState({ teams: [], telemetry: [], updated_at: Date.now() / 1000 })
+  const [state, setState] = useState({
+    teams: [],
+    telemetry: [],
+    tracks: [],
+    active_track: null,
+    recording: { active: false, sample_count: 0 },
+    updated_at: Date.now() / 1000
+  })
   const [connected, setConnected] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     let alive = true
     let socket = null
-    let reconnectTimer = null
+    let timer = null
 
     api.getState().then((data) => alive && setState(data)).catch((err) => alive && setError(err.message))
 
     function connect() {
       socket = new WebSocket(WS_URL)
-
-      socket.onopen = () => {
-        if (!alive) return
-        setConnected(true)
-        setError(null)
-      }
-
-      socket.onmessage = (event) => {
-        if (!alive) return
-        try {
-          setState(JSON.parse(event.data))
-        } catch (err) {
-          setError(err.message)
-        }
-      }
-
+      socket.onopen = () => { if (alive) { setConnected(true); setError(null) } }
+      socket.onmessage = (event) => { if (alive) setState(JSON.parse(event.data)) }
+      socket.onerror = () => { if (alive) setError('Erreur WebSocket') }
       socket.onclose = () => {
         if (!alive) return
         setConnected(false)
-        reconnectTimer = setTimeout(connect, 1500)
-      }
-
-      socket.onerror = () => {
-        if (!alive) return
-        setError('Erreur WebSocket')
+        timer = setTimeout(connect, 1500)
       }
     }
 
@@ -47,12 +36,15 @@ export function useRaceState() {
 
     return () => {
       alive = false
-      if (reconnectTimer) clearTimeout(reconnectTimer)
+      if (timer) clearTimeout(timer)
       if (socket) socket.close()
     }
   }, [])
 
-  const teamsById = useMemo(() => new Map((state.teams || []).map((team) => [team.id, team])), [state.teams])
+  async function refresh() {
+    const fresh = await api.getState()
+    setState(fresh)
+  }
 
-  return { state, setState, connected, error, teamsById }
+  return { state, setState, connected, error, refresh }
 }

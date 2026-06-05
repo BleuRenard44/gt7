@@ -6,19 +6,17 @@ export default function TeamManager({ race }) {
 
   async function refreshAfter(action) {
     await action()
-    race.setState(await api.getState())
+    await race.refresh()
   }
 
-  return (
-    <div className="teamGrid">
-      {(state.teams || []).map((team) => <TeamEditor key={team.id} team={team} refreshAfter={refreshAfter} />)}
-    </div>
-  )
+  return <div className="teamGrid">{(state.teams || []).map((team) => <TeamEditor key={team.id} team={team} refreshAfter={refreshAfter} />)}</div>
 }
 
 function TeamEditor({ team, refreshAfter }) {
   const [name, setName] = useState(team.name)
   const [color, setColor] = useState(team.color)
+  const [status, setStatus] = useState(team.status || 'running')
+  const [notes, setNotes] = useState(team.notes || '')
   const [pilotName, setPilotName] = useState('')
   const [pilotNumber, setPilotNumber] = useState('')
   const [pilotCar, setPilotCar] = useState('')
@@ -31,8 +29,17 @@ function TeamEditor({ team, refreshAfter }) {
         <input className="colorInput" type="color" value={color} onChange={(e) => setColor(e.target.value)} />
       </div>
 
-      <div className="muted">Console : {team.console_ip}</div>
-      <button onClick={() => refreshAfter(() => api.upsertTeam({ name, color, console_ip: team.console_ip }))}>Sauvegarder équipe</button>
+      <div className="muted">Source : {team.source_id}</div>
+      <div className="inlineForm">
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="running">running</option>
+          <option value="pit">pit</option>
+          <option value="dnf">dnf</option>
+          <option value="dns">dns</option>
+        </select>
+        <input placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+      </div>
+      <button onClick={() => refreshAfter(() => api.upsertTeam({ name, color, source_id: team.source_id, status, notes }))}>Sauvegarder équipe</button>
 
       <h4>Pilotes</h4>
       <div className="inlineForm">

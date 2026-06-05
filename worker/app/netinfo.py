@@ -5,7 +5,6 @@ import socket
 
 def list_local_ips() -> list[str]:
     ips: set[str] = set()
-
     try:
         hostname = socket.gethostname()
         for item in socket.getaddrinfo(hostname, None):
@@ -14,7 +13,6 @@ def list_local_ips() -> list[str]:
                 ips.add(ip)
     except Exception:
         pass
-
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.connect(("8.8.8.8", 80))
@@ -22,5 +20,4 @@ def list_local_ips() -> list[str]:
         sock.close()
     except Exception:
         pass
-
     return sorted(ips)

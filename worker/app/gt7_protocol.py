@@ -33,46 +33,38 @@ def u8(data: bytes, offset: int) -> int:
 def decrypt_packet(packet: bytes) -> bytes:
     if len(packet) < 0x128:
         raise PacketDecodeError(f"packet trop petit: {len(packet)} bytes")
-
     iv1 = int.from_bytes(packet[0x40:0x44], byteorder="little")
     iv2 = iv1 ^ 0xDEADBEAF
     nonce = iv2.to_bytes(4, "little") + iv1.to_bytes(4, "little")
-
     cipher = Salsa20.new(key=KEY[:32], nonce=nonce)
     decoded = cipher.decrypt(packet)
-
     magic = int.from_bytes(decoded[0:4], byteorder="little")
     if magic != MAGIC:
         raise PacketDecodeError(f"magic invalide: {hex(magic)}")
-
     return decoded
 
 
-def normalize_world_position(world_x: float, world_z: float) -> tuple[float, float]:
+def fallback_world_position(world_x: float, world_z: float) -> tuple[float, float]:
     scale = 900.0
     x = 0.5 + max(-0.48, min(0.48, world_x / scale))
     y = 0.5 + max(-0.48, min(0.48, world_z / scale))
-
     if not math.isfinite(x):
         x = 0.5
     if not math.isfinite(y):
         y = 0.5
-
     return x, y
 
 
-def parse_packet(console_ip: str, packet: bytes) -> dict:
+def parse_packet(worker_id: str, console_ip: str, packet: bytes) -> dict:
     data = decrypt_packet(packet)
-
     world_x = f32(data, 0x04)
     world_y = f32(data, 0x08)
     world_z = f32(data, 0x0C)
-    x, y = normalize_world_position(world_x, world_z)
+    x, y = fallback_world_position(world_x, world_z)
 
     raw_gear = u8(data, 0x90)
     current_gear: int | str = raw_gear & 0b00001111
     suggested_gear = raw_gear >> 4
-
     if current_gear < 1:
         current_gear = "R"
     if suggested_gear > 14:
@@ -84,6 +76,8 @@ def parse_packet(console_ip: str, packet: bytes) -> dict:
     tire_diam_rr = f32(data, 0xC0)
 
     return {
+        "source_id": f"{worker_id}:{console_ip}",
+        "worker_id": worker_id,
         "console_ip": console_ip,
         "timestamp": time(),
         "connected": True,

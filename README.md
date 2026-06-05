@@ -1,99 +1,116 @@
-# GT7 Dashboard avec worker télémétrie réel
+# GT7 Race Control Ultra
 
-Ce projet contient :
+Version ultra complète du dashboard GT7.
 
-- Backend FastAPI + WebSocket
-- Frontend React/Vite
-- Worker GT7 UDP réel
-- Déchiffrement Salsa20 du paquet GT7
-- Heartbeat UDP vers les consoles
-- Ingestion HTTP vers le backend
-- Gestion équipes / pilotes / relais
-- Docker Compose
-- GitHub Pages workflow
+## Nouvelles vues
 
-## Architecture
+- **Race Control** : vue desktop complète pour l'organisation.
+- **Teams Mobile** : dashboard par équipe optimisé téléphone.
+- **Car Detail** : vue voiture complète avec télémétrie détaillée.
+- **Public Screen** : écran public/stream plus lisible.
+- **Tracks** : enregistrement automatique du circuit.
+- **Tools** : pénalités, incidents, pit stops.
+- **Events** : journal live + exports.
 
-```text
-PS5 #1 ---- UDP 33740 ----\
-PS5 #2 ---- UDP 33740 ----- worker ---- HTTP ---- backend ---- WebSocket ---- frontend
-PS5 #3 ---- UDP 33740 ----/
-PS5 #4 ---- UDP 33740 ---/
-```
+## Fonctionnalités
 
-Le worker écoute les paquets GT7, les décode, puis envoie la télémétrie au backend.
+- workers illimités
+- plusieurs consoles par worker
+- circuit automatique depuis coordonnées GT7
+- affichage voitures sur tracé
+- équipes/pilotes/relais
+- dashboard mobile par équipe
+- QR/access links pour chaque équipe
+- vue voiture complète
+- jauges throttle/brake/fuel/tyres/températures
+- session flags/timer
+- pénalités/incidents/pit stops
+- exports CSV/JSON
+- persistance locale
+- responsive automatique
 
-## Lancement Docker
+## Lancement
 
 ```bash
-docker compose up --build
+docker compose up --build backend frontend
 ```
 
-Frontend :
+Dashboard :
 
 ```text
 http://localhost:3000
 ```
 
-Backend docs :
+Worker :
 
-```text
-http://localhost:8000/docs
+```bash
+cd worker
+./install.sh
+cp .env.example .env
+nano .env
+./run.sh
 ```
 
-## Configuration
+## Accès téléphone équipe
 
-Dans `docker-compose.yml` :
+Depuis un téléphone sur le même réseau ou à distance :
+
+```text
+http://IP:3000/team/SOURCE_ID
+```
+
+Exemple :
+
+```text
+http://IP:3000/team/lan-a%3A192.168.1.101
+```
+
+Depuis l'app, va dans **Teams Mobile**, sélectionne une équipe, puis partage l'URL affichée.
+
+## Accès distant
+
+Dans `docker-compose.yml`, change :
 
 ```yaml
-GT7_CONSOLES: 192.168.1.101,192.168.1.102,192.168.1.103,192.168.1.104
+VITE_API_BASE_URL: http://IP_PUBLIQUE:8000
+VITE_WS_URL: ws://IP_PUBLIQUE:8000/ws
 ```
 
-Remplace par les vraies IP des PS5.
-
-## Ports nécessaires
-
-Sur le PC qui lance le worker :
-
-```text
-UDP entrant 33740
-UDP sortant 33739
-TCP 8000 backend
-TCP 3000 frontend
-```
-
-## Important
-
-Pour que GT7 envoie la télémétrie :
-
-1. La console et le PC doivent être sur le même LAN.
-2. GT7 doit être lancé.
-3. Il faut être en piste.
-4. Les IP des consoles doivent être correctes.
-5. Le firewall doit autoriser UDP 33739/33740.
-
-## Si tu es sur Podman
+Puis :
 
 ```bash
-systemctl --user enable --now podman.socket
-docker compose up --build
+docker compose down
+docker compose build --no-cache frontend
+docker compose up -d
 ```
 
-## Mode worker
 
-Le service `worker` est celui qui récupère les vraies données GT7.
+## Ajouts Performance
 
-Logs :
+Cette version ajoute :
 
-```bash
-docker compose logs -f worker
-```
+- pneus live
+- usure moyenne
+- estimation usure par tour
+- estimation tours restants
+- chronos best/last lap
+- secteurs S1/S2/S3
+- delta leader
+- delta voiture devant
+- classement performance
+- heatmap freinage / accélération / coast
+- export performance CSV
 
-## Fichiers importants
+Les secteurs sont calculés automatiquement en divisant la progression du circuit enregistré en 3 parties.
+Le delta est estimé avec la progression sur circuit et la vitesse moyenne.
 
-```text
-worker/app/gt7_protocol.py     Déchiffrement + parsing GT7
-worker/app/main.py             Worker multi-consoles
-backend/app/main.py            API + WebSocket + ingestion télémétrie
-frontend/src/                  Dashboard
-```
+
+## Mise à jour heatmap
+
+La carte a maintenant :
+
+- bouton Heatmap ON/OFF
+- filtre heatmap : toutes zones / freinage / accélération / coast
+- toggle circuit fin / large
+- voitures plus petites en mode circuit fin
+- lignes de circuit affinées

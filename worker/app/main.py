@@ -12,6 +12,7 @@ from .config import Settings, load_settings
 from .gt7_protocol import PacketDecodeError, parse_packet
 from .logger import setup_logger
 from .netinfo import list_local_ips
+from .targets import expand_targets
 
 
 def create_socket(receive_port: int) -> socket.socket:
@@ -46,100 +47,88 @@ async def wait_backend(settings: Settings, logger) -> None:
                 if response.status_code == 200:
                     logger.info("Backend prêt: %s", settings.backend_url)
                     return
-                logger.warning("Backend répond HTTP %s", response.status_code)
+                logger.warning("Backend HTTP %s", response.status_code)
             except Exception as exc:
                 logger.warning("Attente backend %s : %s", settings.backend_url, exc)
-
             await asyncio.sleep(1.0)
 
 
-async def heartbeat_loop(sock: socket.socket, settings: Settings, logger) -> None:
+async def heartbeat_loop(sock: socket.socket, settings: Settings, target_ips: list[str], logger) -> None:
     payload = settings.heartbeat_type.encode("utf-8")
-
+    if not target_ips:
+        logger.warning("Aucune cible heartbeat. Le worker écoute, mais GT7 risque de ne rien envoyer.")
     while True:
-        for ip in settings.consoles:
+        for ip in target_ips:
             try:
                 sock.sendto(payload, (ip, settings.send_port))
-                logger.debug("heartbeat -> %s:%s type=%s", ip, settings.send_port, settings.heartbeat_type)
+                logger.debug("heartbeat -> %s:%s", ip, settings.send_port)
             except Exception as exc:
-                logger.error("heartbeat impossible vers %s:%s : %s", ip, settings.send_port, exc)
-
+                logger.debug("heartbeat impossible vers %s:%s : %s", ip, settings.send_port, exc)
         await asyncio.sleep(settings.heartbeat_interval)
 
 
-async def receive_loop(sock: socket.socket, settings: Settings, logger) -> None:
+async def receive_loop(sock: socket.socket, settings: Settings, known_targets: set[str], logger) -> None:
     loop = asyncio.get_running_loop()
-    allowed = set(settings.consoles)
-    last_post_by_ip: dict[str, float] = defaultdict(float)
+    last_post_by_source: dict[str, float] = defaultdict(float)
     counters: dict[str, int] = defaultdict(int)
 
     async with httpx.AsyncClient(timeout=2.0) as client:
         while True:
-            try:
-                packet, address = await loop.sock_recvfrom(sock, 4096)
-            except Exception as exc:
-                logger.error("Erreur UDP recv: %s", exc)
-                await asyncio.sleep(0.25)
-                continue
-
+            packet, address = await loop.sock_recvfrom(sock, 4096)
             source_ip = address[0]
 
-            if allowed and source_ip not in allowed and not settings.allow_unknown_consoles:
-                logger.debug("paquet ignoré depuis IP inconnue: %s", source_ip)
+            if known_targets and source_ip not in known_targets and not settings.allow_any_source:
+                logger.debug("paquet ignoré depuis source inconnue: %s", source_ip)
                 continue
 
+            source_id = f"{settings.worker_id}:{source_ip}"
             now = time.time()
-            if now - last_post_by_ip[source_ip] < settings.post_min_interval:
+            if now - last_post_by_source[source_id] < settings.post_min_interval:
                 continue
 
             try:
-                telemetry = parse_packet(source_ip, packet)
+                telemetry = parse_packet(settings.worker_id, source_ip, packet)
             except PacketDecodeError as exc:
-                logger.warning("Décodage impossible depuis %s : %s", source_ip, exc)
+                logger.debug("Décodage impossible %s : %s", source_ip, exc)
                 continue
             except Exception as exc:
-                logger.exception("Parsing impossible depuis %s : %s", source_ip, exc)
+                logger.exception("Parsing impossible %s : %s", source_ip, exc)
                 continue
 
             try:
                 response = await client.post(f"{settings.backend_url}/api/telemetry/ingest", json=telemetry)
                 response.raise_for_status()
-                last_post_by_ip[source_ip] = now
-                counters[source_ip] += 1
-
+                last_post_by_source[source_id] = now
+                counters[source_id] += 1
                 logger.info(
-                    "GT7 %s | #%s | %.1f km/h | rpm=%s | gear=%s | lap=%s | pos=%s | packets=%s",
-                    source_ip,
-                    telemetry.get("packet_id"),
+                    "%s | %.1f km/h | rpm=%s | gear=%s | lap=%s | packets=%s",
+                    source_id,
                     telemetry.get("speed_kph", 0),
                     telemetry.get("rpm"),
                     telemetry.get("gear"),
                     telemetry.get("lap"),
-                    telemetry.get("position"),
-                    counters[source_ip],
+                    counters[source_id],
                 )
             except Exception as exc:
-                logger.error("Push backend impossible vers %s : %s", settings.backend_url, exc)
+                logger.error("Push backend impossible: %s", exc)
                 await asyncio.sleep(0.5)
 
 
 async def run(settings: Settings, logger) -> None:
-    if not settings.consoles and not settings.allow_unknown_consoles:
-        raise RuntimeError("GT7_CONSOLES est vide. Renseigne au moins une IP ou active GT7_ALLOW_UNKNOWN_CONSOLES=true.")
-
+    target_ips = expand_targets(settings.targets, settings.scan_cidrs, settings.scan_ranges)
     await wait_backend(settings, logger)
-
     sock = create_socket(settings.receive_port)
 
-    logger.info("Worker démarré")
-    logger.info("Écoute UDP: 0.0.0.0:%s", settings.receive_port)
-    logger.info("Heartbeat UDP vers port: %s", settings.send_port)
+    logger.info("Worker ID: %s", settings.worker_id)
     logger.info("Backend: %s", settings.backend_url)
-    logger.info("Consoles: %s", settings.consoles or "toutes IP acceptées")
+    logger.info("Écoute UDP: 0.0.0.0:%s", settings.receive_port)
+    logger.info("Heartbeat port: %s", settings.send_port)
+    logger.info("Cibles heartbeat: %s", len(target_ips))
+    logger.info("Accepte sources inconnues: %s", settings.allow_any_source)
 
     await asyncio.gather(
-        heartbeat_loop(sock, settings, logger),
-        receive_loop(sock, settings, logger),
+        heartbeat_loop(sock, settings, target_ips, logger),
+        receive_loop(sock, settings, set(target_ips), logger),
     )
 
 
@@ -148,13 +137,13 @@ def main(argv: list[str] | None = None) -> int:
     logger = setup_logger(settings.debug)
 
     if args.interfaces:
-        ips = list_local_ips()
-        if not ips:
-            print("Aucune IP locale détectée")
-        else:
-            print("IP locales détectées:")
-            for ip in ips:
-                print(f"  - {ip}")
+        for ip in list_local_ips():
+            print(ip)
+        return 0
+
+    if args.print_targets:
+        for ip in expand_targets(settings.targets, settings.scan_cidrs, settings.scan_ranges):
+            print(ip)
         return 0
 
     if args.check:

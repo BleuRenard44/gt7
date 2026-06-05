@@ -2,22 +2,25 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: gt7-dashboard-backend
+    container_name: gt7-race-control-backend
     environment:
-      GT7_CONSOLES: 192.168.1.101,192.168.1.102,192.168.1.103,192.168.1.104
-      GT7_TICK_HZ: 20
       CORS_ORIGINS: "*"
-    network_mode: host
+      GT7_TICK_HZ: "20"
+      GT7_DATA_DIR: /app/data
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
     restart: unless-stopped
 
   frontend:
     build:
       context: ./frontend
       args:
-        VITE_API_BASE_URL: http://localhost:8000
-        VITE_WS_URL: ws://localhost:8000/ws
+        VITE_API_BASE_URL: http://bleurenard.freeboxos.fr:8000
+        VITE_WS_URL: ws://bleurenard.freeboxos.fr:8000/ws
         VITE_BASE_PATH: /
-    container_name: gt7-dashboard-frontend
+    container_name: gt7-race-control-frontend
     ports:
       - "3000:80"
     depends_on:
