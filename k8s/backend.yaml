@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gt7-dashboard-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gt7-dashboard-backend
+  template:
+    metadata:
+      labels:
+        app: gt7-dashboard-backend
+    spec:
+      hostNetwork: true
+      containers:
+        - name: backend
+          image: gt7-dashboard-backend:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: GT7_MODE
+              value: simulator
+            - name: GT7_CONSOLES
+              value: 192.168.1.101,192.168.1.102,192.168.1.103,192.168.1.104
+            - name: GT7_TICK_HZ
+              value: "20"
+            - name: CORS_ORIGINS
+              value: "*"
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gt7-dashboard-backend
+spec:
+  selector:
+    app: gt7-dashboard-backend
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
