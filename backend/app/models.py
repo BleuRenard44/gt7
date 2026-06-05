@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
-from typing import Literal
 from time import time
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class Pilot(BaseModel):
@@ -37,29 +38,48 @@ class CarTelemetry(BaseModel):
     timestamp: float = Field(default_factory=time)
     connected: bool = False
 
-    track_id: str = "unknown"
-    track_name: str = "Unknown Circuit"
+    packet_id: int | None = None
+    car_id: int | None = None
+
+    track_id: str = "gt7"
+    track_name: str = "GT7 Live"
 
     lap: int = 0
+    total_laps: int | None = None
     position: int | None = None
+    total_positions: int | None = None
     lap_progress: float = 0.0
-    x: float = 0.0
-    y: float = 0.0
+
+    world_x: float = 0.0
+    world_y: float = 0.0
+    world_z: float = 0.0
+    x: float = 0.5
+    y: float = 0.5
 
     speed_kph: float = 0.0
     rpm: int = 0
-    gear: int = 0
+    gear: int | str = 0
+    suggested_gear: int | str | None = None
     throttle: float = 0.0
     brake: float = 0.0
+    boost: float | None = None
     fuel_liters: float | None = None
+    fuel_capacity_liters: float | None = None
 
     tire_fl: float | None = None
     tire_fr: float | None = None
     tire_rl: float | None = None
     tire_rr: float | None = None
 
-    damage_engine: float | None = None
-    damage_body: float | None = None
+    tire_speed_fl: float | None = None
+    tire_speed_fr: float | None = None
+    tire_speed_rl: float | None = None
+    tire_speed_rr: float | None = None
+
+    oil_temp: float | None = None
+    water_temp: float | None = None
+    oil_pressure: float | None = None
+    ride_height_mm: float | None = None
 
 
 class RaceState(BaseModel):

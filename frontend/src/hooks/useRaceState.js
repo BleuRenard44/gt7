@@ -8,28 +8,21 @@ export function useRaceState() {
 
   useEffect(() => {
     let alive = true
-    let ws = null
+    let socket = null
     let reconnectTimer = null
 
-    async function initialLoad() {
-      try {
-        const current = await api.getState()
-        if (alive) setState(current)
-      } catch (err) {
-        if (alive) setError(err.message)
-      }
-    }
+    api.getState().then((data) => alive && setState(data)).catch((err) => alive && setError(err.message))
 
     function connect() {
-      ws = new WebSocket(WS_URL)
+      socket = new WebSocket(WS_URL)
 
-      ws.onopen = () => {
+      socket.onopen = () => {
         if (!alive) return
         setConnected(true)
         setError(null)
       }
 
-      ws.onmessage = (event) => {
+      socket.onmessage = (event) => {
         if (!alive) return
         try {
           setState(JSON.parse(event.data))
@@ -38,39 +31,28 @@ export function useRaceState() {
         }
       }
 
-      ws.onerror = () => {
-        if (!alive) return
-        setError('WebSocket error')
-      }
-
-      ws.onclose = () => {
+      socket.onclose = () => {
         if (!alive) return
         setConnected(false)
         reconnectTimer = setTimeout(connect, 1500)
       }
+
+      socket.onerror = () => {
+        if (!alive) return
+        setError('Erreur WebSocket')
+      }
     }
 
-    initialLoad()
     connect()
 
     return () => {
       alive = false
       if (reconnectTimer) clearTimeout(reconnectTimer)
-      if (ws) ws.close()
+      if (socket) socket.close()
     }
   }, [])
 
-  const byTeamId = useMemo(() => {
-    const map = new Map()
-    for (const team of state.teams || []) map.set(team.id, team)
-    return map
-  }, [state.teams])
+  const teamsById = useMemo(() => new Map((state.teams || []).map((team) => [team.id, team])), [state.teams])
 
-  const byConsoleIp = useMemo(() => {
-    const map = new Map()
-    for (const team of state.teams || []) map.set(team.console_ip, team)
-    return map
-  }, [state.teams])
-
-  return { state, setState, connected, error, byTeamId, byConsoleIp }
+  return { state, setState, connected, error, teamsById }
 }

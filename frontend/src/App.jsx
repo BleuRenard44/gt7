@@ -2,12 +2,13 @@ import { Activity, Flag, Gauge, RadioTower, Users } from 'lucide-react'
 import { useRaceState } from './hooks/useRaceState'
 import CircuitMap from './components/CircuitMap'
 import Scoreboard from './components/Scoreboard'
-import TeamManager from './components/TeamManager'
 import CarDetails from './components/CarDetails'
+import TeamManager from './components/TeamManager'
 
 export default function App() {
   const race = useRaceState()
   const { state, connected, error } = race
+  const connectedCars = (state.telemetry || []).filter((car) => car.connected).length
 
   return (
     <div className="app">
@@ -19,9 +20,7 @@ export default function App() {
 
         <div className="statusPill">
           <RadioTower size={18} />
-          <span className={connected ? 'ok' : 'ko'}>
-            {connected ? 'WebSocket connecté' : 'Déconnecté'}
-          </span>
+          <span className={connected ? 'ok' : 'ko'}>{connected ? 'WebSocket connecté' : 'Déconnecté'}</span>
         </div>
       </header>
 
@@ -29,9 +28,9 @@ export default function App() {
 
       <section className="metrics">
         <Metric icon={<Users />} label="Équipes" value={state.teams.length} />
-        <Metric icon={<Activity />} label="Consoles" value={state.telemetry.length} />
+        <Metric icon={<Activity />} label="Consoles live" value={`${connectedCars}/${state.telemetry.length}`} />
         <Metric icon={<Flag />} label="Circuit" value={state.telemetry[0]?.track_name || 'N/A'} />
-        <Metric icon={<Gauge />} label="Mode" value="Live / Sim" />
+        <Metric icon={<Gauge />} label="Source" value="GT7 UDP" />
       </section>
 
       <main className="grid">

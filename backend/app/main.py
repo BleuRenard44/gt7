@@ -7,56 +7,32 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import load_settings
-from .models import (
-    ActivePilotRequest,
-    PilotCreateRequest,
-    RelayCreateRequest,
-    TeamUpsertRequest,
-)
+from .models import ActivePilotRequest, CarTelemetry, PilotCreateRequest, RelayCreateRequest, TeamUpsertRequest
 from .store import RaceStore
-from .telemetry.gt7_udp import Gt7UdpTelemetryService
-from .telemetry.simulator import SimulatorTelemetryService
 from .ws import WebSocketManager
 
 settings = load_settings()
 store = RaceStore(settings.consoles)
-ws_manager = WebSocketManager()
+ws = WebSocketManager()
 
 
-def create_telemetry_service():
-    if settings.mode == "udp-placeholder":
-        return Gt7UdpTelemetryService(store, settings.consoles, settings.tick_hz)
-    return SimulatorTelemetryService(store, settings.consoles, settings.tick_hz)
-
-
-telemetry_service = create_telemetry_service()
-
-
-async def broadcaster_loop() -> None:
+async def broadcast_loop() -> None:
     interval = 1 / settings.tick_hz
     while True:
-        await ws_manager.broadcast_state(store.snapshot())
+        await ws.broadcast(store.snapshot())
         await asyncio.sleep(interval)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    telemetry_task = asyncio.create_task(telemetry_service.start())
-    broadcast_task = asyncio.create_task(broadcaster_loop())
-
+    task = asyncio.create_task(broadcast_loop())
     try:
         yield
     finally:
-        telemetry_service.stop()
-        telemetry_task.cancel()
-        broadcast_task.cancel()
+        task.cancel()
 
 
-app = FastAPI(
-    title="GT7 Race Dashboard API",
-    version="1.0.0",
-    lifespan=lifespan,
-)
+app = FastAPI(title="GT7 Dashboard API", version="2.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -67,19 +43,26 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def root():
+    return {"name": "GT7 Dashboard API", "docs": "/docs", "state": "/api/state"}
+
+
 @app.get("/health")
 def health():
-    return {
-        "status": "ok",
-        "mode": settings.mode,
-        "consoles": settings.consoles,
-        "tick_hz": settings.tick_hz,
-    }
+    return {"status": "ok", "consoles": settings.consoles}
 
 
 @app.get("/api/state")
 def get_state():
     return store.snapshot()
+
+
+@app.post("/api/telemetry/ingest")
+async def ingest_telemetry(payload: CarTelemetry):
+    telemetry = store.ingest(payload)
+    await ws.broadcast(store.snapshot())
+    return telemetry
 
 
 @app.post("/api/teams")
@@ -134,19 +117,12 @@ def set_active_pilot(team_id: str, payload: ActivePilotRequest):
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    await ws_manager.connect(websocket)
+    await ws.connect(websocket)
     await websocket.send_text(store.snapshot().model_dump_json())
-
     try:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        ws_manager.disconnect(websocket)
+        ws.disconnect(websocket)
     except Exception:
-        ws_manager.disconnect(websocket)
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+        ws.disconnect(websocket)

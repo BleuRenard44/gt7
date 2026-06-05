@@ -4,11 +4,27 @@ services:
       context: ./backend
     container_name: gt7-dashboard-backend
     environment:
-      GT7_MODE: simulator
       GT7_CONSOLES: 192.168.1.101,192.168.1.102,192.168.1.103,192.168.1.104
       GT7_TICK_HZ: 20
       CORS_ORIGINS: "*"
     network_mode: host
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ./worker
+    container_name: gt7-dashboard-worker
+    environment:
+      BACKEND_URL: http://127.0.0.1:8000
+      GT7_CONSOLES: 192.168.1.101,192.168.1.102,192.168.1.103,192.168.1.104
+      GT7_HEARTBEAT_TYPE: A
+      GT7_HEARTBEAT_INTERVAL: "1.0"
+      GT7_RECEIVE_PORT: "33740"
+      GT7_SEND_PORT: "33739"
+      GT7_POST_MIN_INTERVAL: "0.03"
+    network_mode: host
+    depends_on:
+      - backend
     restart: unless-stopped
 
   frontend:
